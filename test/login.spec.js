@@ -19,12 +19,12 @@ describe("Login", function () {
     await page.click('input[name="email"]');
     await page.$eval(
       "input[name=email]",
-      (el) => (el.value = "huyentrangvndirect01@gmail.com")
+      (el) => (el.value = "huyentrangvndirect@gmail.com")
     );
 
     await page.waitForSelector("input[name=pass]");
     await page.click('input[name="pass"]');
-    await page.$eval("input[name=pass]", (el) => (el.value = "Anhtu123@"));
+    await page.$eval("input[name=pass]", (el) => (el.value = "Anhtu1234@"));
     await page.click('button[type="submit"]');
 
     expect(await page.url()).to.eql(`${process.env.BASE_URL}`);
@@ -35,7 +35,7 @@ describe("Login", function () {
       visible: true,
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     await page.type(
       "input[aria-label='Tìm kiếm trên Facebook']",
@@ -50,6 +50,42 @@ describe("Login", function () {
       `https://www.facebook.com/search/top/?q=Huy%E1%BB%87n%20Kim%20S%C6%A1n`
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 4000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    await page.waitForSelector("text/Truy cập");
+    await page.click("text/Truy cập");
+    await page.waitForNavigation();
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    await page.waitForSelector("text/Bạn viết gì đi...");
+    await page.click("text/Bạn viết gì đi...");
+    await page.waitForNavigation();
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    await page.waitForSelector("text/Tạo bài viết");
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    expect(await page.url()).to.eql(
+      `https://www.facebook.com/groups/333986258960486`
+    );
+  }).timeout(30000);
+
+  it("Tạo bài viết", async function () {
+    await page.waitForSelector("text/Bạn viết gì đi...");
+    await page.click("text/Bạn viết gì đi...");
+    await page.waitForNavigation();
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    await page.waitForSelector("text/Tạo bài viết");
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    expect(await page.url()).to.eql(
+      `https://www.facebook.com/groups/333986258960486`
+    );
   }).timeout(30000);
 });
