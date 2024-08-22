@@ -16,73 +16,64 @@ describe("Login", function () {
 
   it("Đăng nhập", async function () {
     await page.waitForSelector("input[name=email]");
-    await page.click('input[name="email"]');
-    await page.$eval(
-      "input[name=email]",
-      (el) => (el.value = "huyentrangvndirect@gmail.com")
-    );
+    await page.type('input[name="email"]', process.env.FB_EMAIL);
 
     await page.waitForSelector("input[name=pass]");
-    await page.click('input[name="pass"]');
-    await page.$eval("input[name=pass]", (el) => (el.value = "Anhtu1234@"));
+    await page.type('input[name="pass"]', process.env.FB_PASSWORD);
+
     await page.click('button[type="submit"]');
 
     expect(await page.url()).to.eql(`${process.env.BASE_URL}`);
   }).timeout(20000);
 
-  it("Search Group", async function () {
-    await page.waitForSelector("input[aria-label='Tìm kiếm trên Facebook']", {
-      visible: true,
-    });
+  it("Go To Group", async function () {
+    await new Promise((resolve) => setTimeout(resolve, 30000));
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    await page.type(
-      "input[aria-label='Tìm kiếm trên Facebook']",
-      "Huyện Kim Sơn"
+    await page.waitForSelector(
+      'a[href="https://www.facebook.com/groups/333986258960486/"]'
     );
 
-    await page.keyboard.press("Enter");
-
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    expect(await page.url()).to.eql(
-      `https://www.facebook.com/search/top/?q=Huy%E1%BB%87n%20Kim%20S%C6%A1n`
+    await page.click(
+      'a[href="https://www.facebook.com/groups/333986258960486/"]'
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    await page.waitForSelector("text/Truy cập");
-    await page.click("text/Truy cập");
     await page.waitForNavigation();
-
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    await page.waitForSelector("text/Bạn viết gì đi...");
-    await page.click("text/Bạn viết gì đi...");
-    await page.waitForNavigation();
-
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    await page.waitForSelector("text/Tạo bài viết");
-
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    expect(await page.url()).to.eql(
-      `https://www.facebook.com/groups/333986258960486`
-    );
+    expect(await page.url()).to.include("groups/333986258960486");
   }).timeout(30000);
 
   it("Tạo bài viết", async function () {
     await page.waitForSelector("text/Bạn viết gì đi...");
     await page.click("text/Bạn viết gì đi...");
+
+    // Đợi vùng tạo bài viết tải
+    await page.waitForSelector("[aria-label='Tạo bài viết công khai...']");
+    await page.type(
+      "[aria-label='Tạo bài viết công khai...']",
+      "Đây là một bài viết kiểm thử!"
+    );
+
+    await page.waitForSelector("[aria-label='Ảnh/video']");
+
+    await page.click("[aria-label='Ảnh/video']");
+
+    await page.waitForSelector("text/Thêm ảnh/video");
+    await page.click("text/Thêm ảnh/video");
+
+    // Nhấp vào nút Ảnh/video
+    await page.waitForSelector('input[type="file"]'); // Sửa lại selector cho chính xác
+    const inputUploadHandle = await page.$('input[type="file"]'); // Sửa lại selector cho chính xác
+
+    // Tải ảnh từ máy của bạn lên
+    await inputUploadHandle.uploadFile(
+      `D:/Wano Project/Tu/auto-create-post-in-FB/image/anh1.jpg` // Sửa đường dẫn nếu cần
+    );
+
+    // Đợi ảnh tải lên xong
+    await page.waitForSelector('img[alt="Hình ảnh đã tải lên"]');
+
+    // Gửi bài viết
+    await page.click("[aria-label='Đăng']");
     await page.waitForNavigation();
-
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    await page.waitForSelector("text/Tạo bài viết");
-
-    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     expect(await page.url()).to.eql(
       `https://www.facebook.com/groups/333986258960486`
